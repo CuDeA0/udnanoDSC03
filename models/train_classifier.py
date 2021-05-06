@@ -148,6 +148,13 @@ def save_model(model, model_filepath):
         pickle.dump(model, fout)
 
 
+def ensure_nltk():
+    """Ensure the packages used by the nltk are installed"""
+    nltk.download('wordnet')
+    nltk.download('punkt')
+    nltk.download('stopwords')
+    nltk.download('averaged_perceptron_tagger')
+
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
@@ -159,6 +166,7 @@ def main():
         model = build_model()
         
         print('Training model...')
+        ensure_nltk()
         model.fit(X_train, Y_train)
         
         print('Evaluating model...')
