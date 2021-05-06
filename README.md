@@ -20,6 +20,7 @@ a ML pipeline to categorize emergency messages based on their needs.
 ## Data
 The source of the datsaet comes from 
 - https://www.figure-eight.com
+
 The raw datset goes through the ETL pipeline doing the following steps
 in file `data/process_data.py`
 
