@@ -53,20 +53,8 @@ def stopClean(textList):
     return textList
 
 
-def whitespace_tokenize(text):
-    return clean(text).lower().split()
-
-
-def sentence_tokinization(text):
-    return sent_tokenize(text)
-
-
-def tokenize_base(text):
-    return word_tokenize(text)
-
-
 def tokenize_full(text):
-    return stopClean(tokenize_base(clean(text.lower())))
+    return stopClean(word_tokenize(clean(text.lower())))
 
 
 def tag_and_tokenize(text):
@@ -94,6 +82,7 @@ def stem_lem_data(tokens):
 
 def tokenize(text):
     """A functional composition of using
+    - Sentence to lowercase
     - Regex removal of non character or numeric
     - tokenizing the series using nltk
     - Removing stop words
