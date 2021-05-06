@@ -72,3 +72,15 @@ That code is explicitly from Udacity.
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+
+## Additional notes
+If the ML pipeline fails because of NLTK it might be that your packages
+aren't installed, make sure the following are installed
+
+```
+nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+```
