@@ -67,15 +67,13 @@ def stem_tag_tokenize(text):
     return pos_tag([PorterStemmer().stem(w) for w in tokenize_full(text)])
 
 
-def stem_lem_data(tokens):
-    """Run stemming and lemmatization on the results returning
+def lem_data(tokens):
+    """Run lemmatization on the results returning
     a new list"""
     out = []
     for word, type_ in tokens:
         # First we lemmatize the work
         w = WordNetLemmatizer().lemmatize(word)
-        # Then we stem the word
-        w = PorterStemmer().stem(w)
         out.append((w, type_))
     return out
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -98,7 +96,7 @@ def tokenize(text):
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
 
-    return stem_lem_data(stopClean(tag_and_tokenize(clean(text))))
+    return lem_data(stopClean(tag_and_tokenize(clean(text))))
 
 
 def build_model():
@@ -108,15 +106,17 @@ def build_model():
     pipeline = Pipeline([
         ("vect", CountVectorizer(tokenizer=tokenize)),
         ("tfidf", TfidfTransformer()),
-        ("class", MultiOutputClassifier(KNeighborsClassifier()))
+        ("class", MultiOutputClassifier(KNeighborsClassifier(
+            n_neighbors=36, algorithm="brute"
+        )))
     ])
 
     # Select the optimized parameters
     parameters = {
-        #'vect__ngram_range': ((1, 1), (1, 2)),
+        'class__estimator__n_neighbors':[30, 36, 42]
     }
-    cs = GridSearchCV(pipeline, param_grid=parameters,
-                      scoring="roc_auc_ovr")
+    cs = GridSearchCV(pipeline, param_grid=parameters)
+
     return cs
 
 
@@ -158,7 +158,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.995)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
         
         print('Building model...')
         model = build_model()
