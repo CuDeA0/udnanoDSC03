@@ -46,6 +46,7 @@ def clean_data(df):
 
     # Remove undefined (2) values
     df = df[df.related != 2]
+
     return df
 
 
