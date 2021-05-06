@@ -17,6 +17,10 @@ The code herein is forked from the project repo on udacity.
 The objective is to explore a Disaster Response Pipeline, building
 a ML pipeline to categorize emergency messages based on their needs.
 
+The idea is to develop a simple interface for emergency situations
+where text messages from different sources can quickly be evaluated
+and information handed to the appropriate disaster relief agency.
+
 ## Data
 The source of the datsaet comes from 
 - https://www.figure-eight.com
