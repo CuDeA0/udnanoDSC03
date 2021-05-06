@@ -21,6 +21,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, classification_report
 # Model improvement
 from sklearn.model_selection import GridSearchCV
@@ -47,6 +48,7 @@ def clean(text):
 
 
 def stopClean(textList):
+    """Remove stopwords"""
     for word in textList:
         if word in stopwords.words("english"):
             textList.remove(word)
@@ -82,6 +84,7 @@ def stem_lem_data(tokens):
 
 def tokenize(text):
     """A functional composition of using
+    - Change urls to "urlplaceholder"
     - Sentence to lowercase
     - Regex removal of non character or numeric
     - tokenizing the series using nltk
@@ -90,6 +93,11 @@ def tokenize(text):
     - Lemmatizing the words
     - Stemming the words
     """
+    url_regex ='http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+
     return stem_lem_data(stopClean(tag_and_tokenize(clean(text))))
 
 
@@ -100,15 +108,15 @@ def build_model():
     pipeline = Pipeline([
         ("vect", CountVectorizer(tokenizer=tokenize)),
         ("tfidf", TfidfTransformer()),
-        ("class", MultiOutputClassifier(RandomForestClassifier()))
+        ("class", MultiOutputClassifier(KNeighborsClassifier()))
     ])
 
     # Select the optimized parameters
     parameters = {
-        "vect__ngram_range":((1, 1), (1, 2)),
-      #  "vect__max_df":(0.5, 0.75, 1.0)
+        #'vect__ngram_range': ((1, 1), (1, 2)),
     }
-    cs = GridSearchCV(pipeline, param_grid=parameters)
+    cs = GridSearchCV(pipeline, param_grid=parameters,
+                      scoring="roc_auc_ovr")
     return cs
 
 
@@ -127,8 +135,9 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print(classification_report(y_test, y_pred))
         print("\nBest Parameters:", cv.best_params_)
 
-        for indx, label in enumerate(y_test.columns):
-            display_results(cv, y_test[label], y_pred[:, indx])
+    y_pred = model.predict(X_test)
+    for indx, label in enumerate(Y_test.columns):
+        display_results(model, Y_test[label], y_pred[:, indx])
 
 
 def save_model(model, model_filepath):
@@ -149,7 +158,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.995)
         
         print('Building model...')
         model = build_model()
