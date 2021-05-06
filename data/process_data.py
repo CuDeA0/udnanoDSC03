@@ -44,6 +44,8 @@ def clean_data(df):
     # Remove duplicates
     df = df.drop_duplicates()
 
+    # Remove undefined (2) values
+    df = df[df.related != 2]
     return df
 
 
