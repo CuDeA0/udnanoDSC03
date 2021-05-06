@@ -106,7 +106,7 @@ def build_model():
     # Select the optimized parameters
     parameters = {
         "vect__ngram_range":((1, 1), (1, 2)),
-        "vect__max_df":(0.5, 0.75, 1.0)
+      #  "vect__max_df":(0.5, 0.75, 1.0)
     }
     cs = GridSearchCV(pipeline, param_grid=parameters)
     return cs
